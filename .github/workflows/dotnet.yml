@@ -1,0 +1,43 @@
+name: .NET Microservices CI Pipeline
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-test-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Company_Case_Project.sln
+
+      - name: Run tests (including Testcontainers)
+        env:
+          DOTNET_ENVIRONMENT: Development
+        run: dotnet test Company_Case_Project.sln --no-restore --verbosity normal
+
+      - name: Build Docker image for RatingService
+        run: docker build -t ratingservice:latest -f RatingService.API/Dockerfile .
+
+      - name: Build Docker image for NotificationService
+        run: docker build -t notificationservice:latest -f NotificationService.API/Dockerfile .
+
+      - name: Start services with Docker Compose
+        run: docker compose up -d --build
+
+      - name: Verify running services
+        run: docker compose ps
+
+      - name: Shutdown Docker Compose
+        run: docker compose down
