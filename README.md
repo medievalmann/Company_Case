@@ -97,12 +97,11 @@ dotnet test Company_Case_Project.sln
 
 GitHub Actions pipeline automatically runs on push/PR to `main`:
 
-- Format check via `dotnet format`
 - Integration tests with Testcontainers
 - Docker image builds
 - Docker Compose validation
 
-Workflow config: `.github/workflows/main.yml`
+Workflow config: `.github/workflows/dotnet.yml`
 
 
 
